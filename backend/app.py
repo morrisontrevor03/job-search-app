@@ -20,9 +20,9 @@ app.add_middleware(
 )
 
 # Serve static files in production
-static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):
-    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    app.mount("/assets", StaticFiles(directory=static_dir), name="static")
 
 app.state.submit_query = "No query selected"
 app.state.submit_count = 10

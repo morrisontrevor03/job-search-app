@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/ ./backend/
 
-# Copy built frontend
-COPY --from=frontend-build /app/frontend/dist ./static
+# Copy built frontend to backend directory
+COPY --from=frontend-build /app/frontend/dist ./backend/static
 
 # Expose port
 EXPOSE 8000
