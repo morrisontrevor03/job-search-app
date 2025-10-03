@@ -31,12 +31,27 @@ class InputItem(BaseModel):
     text: str = Field(..., min_length=1)
     count: int = Field(..., ge=0)
 
+@app.get("/debug")
+def debug_info():
+    import glob
+    files_in_static = []
+    if os.path.exists(static_dir):
+        files_in_static = glob.glob(os.path.join(static_dir, "*"))
+    return {
+        "static_dir": static_dir,
+        "static_exists": os.path.exists(static_dir),
+        "files_in_static": files_in_static,
+        "current_dir": os.getcwd()
+    }
+
 @app.get("/")
 def read_root():
     # Serve index.html for production, API response for development
     if os.path.exists(static_dir):
-        return FileResponse(os.path.join(static_dir, "index.html"))
-    return {"ok": True}
+        index_path = os.path.join(static_dir, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+    return {"ok": True, "message": "Job Search API is running - Frontend not found", "debug_url": "/debug"}
 
 @app.post("/search", response_model=List[str])
 def search_endpoint(body: InputItem):
