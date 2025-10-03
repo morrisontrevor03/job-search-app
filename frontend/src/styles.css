@@ -1,0 +1,160 @@
+:root {
+  --bg: color-mix(in oklab, canvas 96%, black 0%);
+  --fg: color-mix(in oklab, canvasText 96%, black 0%);
+  --muted: color-mix(in oklab, var(--fg), transparent 60%);
+  --primary: oklch(65% 0.2 260);
+  --primary-strong: oklch(70% 0.22 260);
+  --ring: oklch(80% 0.15 260 / 40%);
+  --card: color-mix(in oklab, var(--bg), var(--fg) 3%);
+  --border: color-mix(in oklab, var(--fg), transparent 85%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: color-mix(in oklab, canvas 92%, black 0%);
+    --fg: color-mix(in oklab, canvasText 92%, white 0%);
+    --card: color-mix(in oklab, var(--bg), var(--fg) 6%);
+    --border: color-mix(in oklab, var(--fg), transparent 80%);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 800px at 20% -10%, color-mix(in oklab, var(--primary) 30%, transparent), transparent),
+              radial-gradient(1000px 600px at 120% 20%, color-mix(in oklab, var(--primary) 18%, transparent), transparent),
+              var(--bg);
+  color: var(--fg);
+  font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.app-shell {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: start;
+}
+
+.app-header {
+  padding: 40px 16px 8px;
+  text-align: center;
+}
+.brand { display: inline-flex; align-items: center; gap: 12px; }
+.brand h1 { font-size: 28px; margin: 0; letter-spacing: 0.2px; }
+.logo { width: 28px; height: 28px; position: relative; filter: drop-shadow(0 6px 16px color-mix(in oklab, var(--primary), transparent 40%)); }
+.logo .gradient {
+  position: absolute; inset: 0; border-radius: 10px;
+  background: conic-gradient(from 0deg, var(--primary), var(--primary-strong), var(--primary));
+}
+.subtitle { margin: 8px 0 0; color: var(--muted); }
+
+main { display: grid; place-items: start center; padding: 24px 16px 40px; }
+.card {
+  width: min(560px, 92vw);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 10px 30px color-mix(in oklab, black, transparent 90%), inset 0 1px 0 color-mix(in oklab, white, transparent 90%);
+  display: grid;
+  gap: 16px;
+}
+
+.field { display: grid; gap: 6px; }
+label { font-weight: 600; }
+input[type="text"], input[type="number"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg), var(--fg) 2%);
+  color: var(--fg);
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .02s ease;
+}
+input:focus {
+  border-color: color-mix(in oklab, var(--primary), transparent 40%);
+  box-shadow: 0 0 0 6px var(--ring);
+}
+input[aria-invalid="true"] { border-color: oklch(60% 0.19 30); }
+.error { color: oklch(60% 0.19 30); font-size: 12.5px; }
+
+.go {
+  justify-self: end;
+  min-width: 88px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 0;
+  color: white;
+  background: linear-gradient(180deg, var(--primary-strong), var(--primary));
+  box-shadow: 0 10px 20px color-mix(in oklab, var(--primary), transparent 70%);
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: transform .06s ease, filter .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.go:hover { filter: saturate(1.1) contrast(1.05); box-shadow: 0 14px 26px color-mix(in oklab, var(--primary), transparent 65%); }
+.go:active { transform: translateY(1px); }
+.go:disabled { opacity: .6; cursor: not-allowed; box-shadow: none; }
+
+.spinner {
+  width: 18px; height: 18px; display: inline-block;
+  border: 2.5px solid color-mix(in oklab, white, transparent 70%);
+  border-right-color: white;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { rotate: 360deg; } }
+
+footer { text-align: center; padding: 8px 0 24px; color: var(--muted); }
+
+/* Results and error styling */
+.results-card, .error-card {
+  margin-top: 20px;
+}
+
+.error-card {
+  border-color: oklch(60% 0.19 30 / 40%);
+  background: color-mix(in oklab, oklch(60% 0.19 30), transparent 95%);
+}
+
+.error-card h3 {
+  margin: 0 0 8px 0;
+  color: oklch(60% 0.19 30);
+  font-size: 16px;
+}
+
+.error-card p {
+  margin: 0;
+  color: oklch(60% 0.19 30);
+}
+
+.results-card h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--fg);
+}
+
+.results-textbox {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg), var(--fg) 2%);
+  color: var(--fg);
+  font-family: 'Courier New', Consolas, Monaco, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 120px;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.results-textbox:focus {
+  border-color: color-mix(in oklab, var(--primary), transparent 40%);
+  box-shadow: 0 0 0 6px var(--ring);
+}
