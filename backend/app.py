@@ -22,7 +22,12 @@ app.add_middleware(
 # Serve static files in production
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):
-    app.mount("/assets", StaticFiles(directory=static_dir), name="static")
+    # Mount the assets subdirectory at /assets
+    assets_dir = os.path.join(static_dir, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+    # Also serve all static files at root level
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 app.state.submit_query = "No query selected"
 app.state.submit_count = 10
@@ -46,7 +51,6 @@ def debug_info():
 
 @app.get("/")
 def read_root():
-    # Serve index.html for production, API response for development
     if os.path.exists(static_dir):
         index_path = os.path.join(static_dir, "index.html")
         if os.path.exists(index_path):
