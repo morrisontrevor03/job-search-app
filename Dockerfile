@@ -1,12 +1,12 @@
 # Multi-stage build for Job Search Application
-FROM node:18-alpine AS frontend-build
+FROM node:18 AS frontend-build
 
 # Build frontend
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm install --include=dev
+RUN npm install
 COPY frontend/ ./
-RUN npm run build
+RUN chmod +x node_modules/.bin/* && npm run build
 
 # Python backend stage
 FROM python:3.11-slim AS backend
