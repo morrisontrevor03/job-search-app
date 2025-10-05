@@ -12,7 +12,9 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
+    port = os.getenv("PORT", "8000")
     print("🚀 Job Search API starting up...")
+    print(f"🌐 Port: {port}")
     print(f"✅ Scan module loaded: {hasattr(scan, 'search')}")
     print(f"🔑 API Key configured: {'Yes' if scan.key else 'No'}")
     print(f"🔍 Search ID configured: {'Yes' if scan.id else 'No'}")
@@ -54,19 +56,15 @@ class InputItem(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"status": "ok", "message": "Job Search API is running"}
+    return "OK"
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    return "OK"
 
 @app.get("/healthz")
 def healthz():
-    return {"status": "ok"}
-
-@app.get("/api/health")
-def api_health_check():
-    return {"status": "ok"}
+    return "OK"
 
 @app.post("/search", response_model=List[str])
 def search_endpoint(body: InputItem):
