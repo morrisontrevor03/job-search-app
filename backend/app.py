@@ -10,6 +10,13 @@ import os
 
 app = FastAPI()
 
+@app.on_event("startup")
+async def startup_event():
+    print("🚀 Job Search API starting up...")
+    print(f"✅ Scan module loaded: {hasattr(scan, 'search')}")
+    print(f"🔑 API Key configured: {'Yes' if scan.key else 'No'}")
+    print(f"🔍 Search ID configured: {'Yes' if scan.id else 'No'}")
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -51,11 +58,15 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "timestamp": "2025-01-01T00:00:00Z"}
+    return {"status": "ok"}
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
 
 @app.get("/api/health")
 def api_health_check():
-    return {"status": "healthy", "service": "job-search-api"}
+    return {"status": "ok"}
 
 @app.post("/search", response_model=List[str])
 def search_endpoint(body: InputItem):
