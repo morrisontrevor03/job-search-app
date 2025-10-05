@@ -44,9 +44,17 @@ class InputItem(BaseModel):
     level: ExperienceLevel = Field(..., description="Experience level")
     count: int = Field(..., ge=1, le=100, description="Number of job postings to retrieve")
 
-@app.get("/")
+@app.get("/api")
 def read_root():
     return {"ok": True, "message": "API is running"}
+
+@app.get("/")
+def serve_frontend():
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    index_file = os.path.join(static_dir, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {"ok": True, "message": "API is running - Frontend not built yet"}
 
 @app.post("/search", response_model=List[str])
 def search_endpoint(body: InputItem):
