@@ -16,7 +16,6 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173", 
         "http://localhost:3000", 
-        "https://your-frontend-name.netlify.app",  # Replace with your actual Netlify URL
         "https://*.netlify.app",
         "https://*.vercel.app",
         "https://*.railway.app",
@@ -48,19 +47,33 @@ class InputItem(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"ok": True, "message": "Job Search API is running"}
+    return {"status": "ok", "message": "Job Search API is running"}
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "timestamp": "2025-01-01T00:00:00Z"}
+
+@app.get("/api/health")
+def api_health_check():
+    return {"status": "healthy", "service": "job-search-api"}
 
 @app.post("/search", response_model=List[str])
 def search_endpoint(body: InputItem):
     try:
+        # Check if API keys are configured
+        if not scan.key or not scan.id:
+            raise HTTPException(
+                status_code=503, 
+                detail="Search service not configured. Missing API keys."
+            )
+        
         query = scan.buildQuery(body.text, body.level)
         print(f"Query: {query}")
         print(f"Level: {body.level}")
         result = scan.search(query, scan.key, scan.id, body.count)
         return result or []
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        print(f"Search error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
