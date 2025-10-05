@@ -63,7 +63,7 @@ main { display: grid; place-items: start center; padding: 24px 16px 40px; }
 
 .field { display: grid; gap: 6px; }
 label { font-weight: 600; }
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], select {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
@@ -75,11 +75,19 @@ input[type="text"], input[type="number"] {
   outline: none;
   transition: border-color .15s ease, box-shadow .15s ease, transform .02s ease;
 }
-input:focus {
+
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+}
+input:focus, select:focus {
   border-color: color-mix(in oklab, var(--primary), transparent 40%);
   box-shadow: 0 0 0 6px var(--ring);
 }
-input[aria-invalid="true"] { border-color: oklch(60% 0.19 30); }
+input[aria-invalid="true"], select[aria-invalid="true"] { border-color: oklch(60% 0.19 30); }
 .error { color: oklch(60% 0.19 30); font-size: 12.5px; }
 
 .go {

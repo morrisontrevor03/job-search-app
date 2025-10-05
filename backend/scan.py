@@ -27,8 +27,10 @@ def search(query: str, key: str, id: str, num: int):
 
     return results
 
-def buildQuery(keyword: str):
-    return f'site:lever.co OR site:greenhouse.io OR site:ashbyhq.com "{keyword}" new grad'
+def buildQuery(position: str, level: str):
+        q = f'site:lever.co OR site:greenhouse.io OR site:ashbyhq.com {position} {level}'
+        print(q)
+        return q
 
 
 
