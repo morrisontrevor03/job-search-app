@@ -1,12 +1,12 @@
 import os, httpx, time
 from jose import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from functools import lru_cache
 
-PROJECT_URL = os.environ["SUPABASE_PROJECT_URL"]
-JWKS_URL = os.environ["SUPABASE_JWKS_URL"]
+PROJECT_URL = os.environ.get("SUPABASE_PROJECT_URL")
+JWKS_URL = os.environ.get("SUPABASE_JWKS_URL")
 AUDIENCE = "authenticated" 
-ISSUER = f"{PROJECT_URL}/auth/v1"
+ISSUER = f"{PROJECT_URL}/auth/v1" 
 
 @lru_cache(maxsize=1)
 def _get_jwks():
@@ -14,7 +14,11 @@ def _get_jwks():
     r.raise_for_status()
     return r.json()
 
-def get_current_user(authorization: str | None = None):
+def get_current_user(request: Request):
+    if not PROJECT_URL or not JWKS_URL:
+        raise HTTPException(status_code=503, detail="Authentication service not configured")
+        
+    authorization = request.headers.get("authorization")
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing bearer token")
     token = authorization.split(" ", 1)[1]

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -7,17 +7,10 @@ from pydantic import BaseModel, Field
 from typing import List
 from enum import Enum
 import os
+from auth_routes import router as auth_router
+from auth_dep import get_current_user
 
-app = FastAPI()
-
-@app.on_event("startup")
-async def startup_event():
-    port = os.getenv("PORT", "8000")
-    print("🚀 Job Search API starting up...")
-    print(f"🌐 Port: {port}")
-    print(f"✅ Scan module loaded: {hasattr(scan, 'search')}")
-    print(f"🔑 API Key configured: {'Yes' if scan.key else 'No'}")
-    print(f"🔍 Search ID configured: {'Yes' if scan.id else 'No'}")
+app = FastAPI(title="Job Search API", description="API for job searching with authentication")
 
 # Add CORS middleware
 app.add_middleware(
@@ -41,6 +34,9 @@ if os.path.exists(static_dir):
     if os.path.exists(assets_dir):
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# Include authentication routes
+app.include_router(auth_router)
 
 class ExperienceLevel(str, Enum):
     INTERN = "intern"
@@ -78,6 +74,28 @@ def search_endpoint(body: InputItem):
         
         query = scan.buildQuery(body.text, body.level)
         print(f"Query: {query}")
+        print(f"Level: {body.level}")
+        result = scan.search(query, scan.key, scan.id, body.count)
+        return result or []
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Search error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@app.post("/search/protected", response_model=List[str])
+def protected_search_endpoint(body: InputItem, current_user: dict = Depends(get_current_user)):
+    """Protected search endpoint that requires authentication"""
+    try:
+        # Check if API keys are configured
+        if not scan.key or not scan.id:
+            raise HTTPException(
+                status_code=503, 
+                detail="Search service not configured. Missing API keys."
+            )
+        
+        query = scan.buildQuery(body.text, body.level)
+        print(f"Query: {query} (User: {current_user['email']})")
         print(f"Level: {body.level}")
         result = scan.search(query, scan.key, scan.id, body.count)
         return result or []

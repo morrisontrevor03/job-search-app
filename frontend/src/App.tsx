@@ -1,6 +1,10 @@
 import { useMemo, useState } from 'react'
+import { AuthProvider, useAuth } from './AuthContext'
+import AuthForm from './AuthForm'
+import UserProfile from './UserProfile'
 
-export default function App() {
+function JobSearchApp() {
+  const { user, loading: authLoading } = useAuth()
   const [jobTitle, setJobTitle] = useState('')
   const [experienceLevel, setExperienceLevel] = useState('')
   const [count, setCount] = useState<number | ''>('')
@@ -28,6 +32,33 @@ export default function App() {
   }, [jobTitle, experienceLevel, count, touched])
 
   const canSubmit = jobTitle.trim().length >= 2 && experienceLevel.trim().length > 0 && typeof count === 'number' && count >= 1 && count <= 100 && !loading
+
+  if (authLoading) {
+    return (
+      <div className="app-shell">
+        <div className="loading-container">
+          <span className="spinner" aria-label="Loading" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="app-shell">
+        <header className="app-header">
+          <div className="brand">
+            <h1>Job Search</h1>
+          </div>
+          <p className="subtitle">Sign in to access job search functionality</p>
+        </header>
+        <main>
+          <AuthForm />
+        </main>
+      </div>
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -79,6 +110,7 @@ export default function App() {
         <div className="brand">
           <h1>Job Search</h1>
         </div>
+        <UserProfile />
         <p className="subtitle">Pull the most recent, hidden job postings from anywhere on the internet</p>
       </header>
 
@@ -188,5 +220,13 @@ export default function App() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <JobSearchApp />
+    </AuthProvider>
   )
 }
