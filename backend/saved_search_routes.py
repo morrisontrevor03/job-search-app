@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -21,9 +21,15 @@ def get_db():
 
 @router.get("/", response_model=List[SavedSearchResponse])
 async def get_saved_searches(
+    response: Response,
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    # Add explicit CORS headers
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    
     try:
         saved_searches = db.query(SavedSearch).filter(
             SavedSearch.user_id == current_user["id"]
