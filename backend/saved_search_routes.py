@@ -222,7 +222,11 @@ async def run_saved_search(
                 detail="Search service not configured. Missing API keys."
             )
         
+        print(f"Debug: job_title = '{saved_search.job_title}'")
+        print(f"Debug: experience_level = '{saved_search.experience_level}' (type: {type(saved_search.experience_level)})")
+        
         query = scan.buildQuery(saved_search.job_title, saved_search.experience_level)
+        print(f"Debug: built query = '{query}'")
         results = scan.search(query, scan.key, scan.id, saved_search.count)
         
         if results:
