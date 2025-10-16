@@ -2,9 +2,13 @@ import { useMemo, useState } from 'react'
 import { AuthProvider, useAuth } from './AuthContext'
 import AuthForm from './AuthForm'
 import UserProfile from './UserProfile'
+import SavedSearches from './SavedSearches'
+import SchedulerStatus from './SchedulerStatus'
+import ApiTest from './ApiTest'
 
 function JobSearchApp() {
   const { user, loading: authLoading } = useAuth()
+  const [activeTab, setActiveTab] = useState<'search' | 'saved' | 'admin' | 'test'>('search')
   const [jobTitle, setJobTitle] = useState('')
   const [experienceLevel, setExperienceLevel] = useState('')
   const [count, setCount] = useState<number | ''>('')
@@ -114,7 +118,36 @@ function JobSearchApp() {
         <p className="subtitle">Pull the most recent, hidden job postings from anywhere on the internet</p>
       </header>
 
-      <main>
+      <nav className="app-navigation">
+        <button 
+          className={`nav-tab ${activeTab === 'search' ? 'active' : ''}`}
+          onClick={() => setActiveTab('search')}
+        >
+          Quick Search
+        </button>
+        <button 
+          className={`nav-tab ${activeTab === 'saved' ? 'active' : ''}`}
+          onClick={() => setActiveTab('saved')}
+        >
+          Saved Searches
+        </button>
+        <button 
+          className={`nav-tab ${activeTab === 'admin' ? 'active' : ''}`}
+          onClick={() => setActiveTab('admin')}
+        >
+          Scheduler Admin
+        </button>
+        <button 
+          className={`nav-tab ${activeTab === 'test' ? 'active' : ''}`}
+          onClick={() => setActiveTab('test')}
+        >
+          API Test
+        </button>
+      </nav>
+
+      <main className={activeTab === 'search' ? 'search-tab' : 'other-tabs'}>
+        {activeTab === 'search' ? (
+          <>
         <form className="card" onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="title">Job title</label>
@@ -206,17 +239,25 @@ function JobSearchApp() {
           </div>
         )}
 
-        {results.length > 0 && (
-          <div className="card results-card">
-            <h3>Search Results ({results.length} found)</h3>
-            <textarea
-              className="results-textbox"
-              value={results.join('\n')}
-              readOnly
-              rows={Math.min(results.length + 2, 15)}
-              placeholder="Job posting links will appear here..."
-            />
-          </div>
+            {results.length > 0 && (
+              <div className="card results-card">
+                <h3>Search Results ({results.length} found)</h3>
+                <textarea
+                  className="results-textbox"
+                  value={results.join('\n')}
+                  readOnly
+                  rows={Math.min(results.length + 2, 15)}
+                  placeholder="Job posting links will appear here..."
+                />
+              </div>
+            )}
+          </>
+        ) : activeTab === 'saved' ? (
+          <SavedSearches />
+        ) : activeTab === 'admin' ? (
+          <SchedulerStatus />
+        ) : (
+          <ApiTest />
         )}
       </main>
     </div>

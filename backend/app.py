@@ -8,7 +8,14 @@ from typing import List
 from enum import Enum
 import os
 from auth_routes import router as auth_router
+from saved_search_routes import router as saved_search_router
 from auth_dep import get_current_user
+from scheduler import (
+    start_background_scheduler, 
+    stop_background_scheduler, 
+    get_scheduler_status, 
+    run_searches_now
+)
 
 app = FastAPI(title="Job Search API", description="API for job searching with authentication")
 
@@ -37,6 +44,9 @@ if os.path.exists(static_dir):
 
 # Include authentication routes
 app.include_router(auth_router)
+
+# Include saved search routes
+app.include_router(saved_search_router)
 
 class ExperienceLevel(str, Enum):
     INTERN = "intern"
@@ -104,3 +114,43 @@ def protected_search_endpoint(body: InputItem, current_user: dict = Depends(get_
     except Exception as e:
         print(f"Search error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+# Scheduler management routes
+@app.get("/admin/scheduler/status")
+def get_scheduler_status_endpoint():
+    """Get the current status of the background scheduler"""
+    return get_scheduler_status()
+
+@app.post("/admin/scheduler/start")
+def start_scheduler_endpoint():
+    """Start the background scheduler"""
+    start_background_scheduler()
+    return {"message": "Scheduler started successfully"}
+
+@app.post("/admin/scheduler/stop")
+def stop_scheduler_endpoint():
+    """Stop the background scheduler"""
+    stop_background_scheduler()
+    return {"message": "Scheduler stopped successfully"}
+
+@app.post("/admin/scheduler/run-now")
+def run_searches_now_endpoint():
+    """Manually trigger all searches immediately"""
+    run_searches_now()
+    return {"message": "All searches triggered successfully"}
+
+# Startup event to start the scheduler
+@app.on_event("startup")
+async def startup_event():
+    """Start the background scheduler when the app starts"""
+    # Create database tables if they don't exist
+    from db import engine, Base
+    Base.metadata.create_all(bind=engine)
+    
+    start_background_scheduler()
+
+# Shutdown event to stop the scheduler
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Stop the background scheduler when the app shuts down"""
+    stop_background_scheduler()
