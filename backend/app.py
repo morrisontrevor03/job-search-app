@@ -10,6 +10,7 @@ import os
 from auth_routes import router as auth_router
 from saved_search_routes import router as saved_search_router
 from auth_dep import get_current_user
+import models  # Import models to ensure they're registered with SQLAlchemy
 from scheduler import (
     start_background_scheduler, 
     stop_background_scheduler, 
@@ -71,6 +72,40 @@ def health_check():
 @app.get("/healthz")
 def healthz():
     return "OK"
+
+@app.get("/debug/env")
+def debug_env():
+    """Debug endpoint to check environment variables"""
+    return {
+        "supabase_url_set": bool(os.environ.get("SUPABASE_URL")),
+        "database_url_set": bool(os.environ.get("DATABASE_URL")),
+        "jwt_secret_set": bool(os.environ.get("JWT_SECRET_KEY")),
+        "supabase_key_set": bool(os.environ.get("SUPABASE_KEY"))
+    }
+
+@app.get("/debug/db")
+def debug_db():
+    """Debug endpoint to check database connection"""
+    try:
+        from db import SessionLocal, engine
+        from models import SavedSearch
+        
+        # Test database connection
+        db = SessionLocal()
+        count = db.query(SavedSearch).count()
+        db.close()
+        
+        return {
+            "database_connected": True,
+            "saved_searches_count": count,
+            "tables_exist": True
+        }
+    except Exception as e:
+        return {
+            "database_connected": False,
+            "error": str(e),
+            "tables_exist": False
+        }
 
 @app.post("/search", response_model=List[str])
 def search_endpoint(body: InputItem):
