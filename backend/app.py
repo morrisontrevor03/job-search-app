@@ -100,6 +100,29 @@ def debug_db():
             "tables_exist": False
         }
 
+@app.get("/debug/saved-searches-simple")
+def debug_saved_searches():
+    """Simple saved searches test without authentication"""
+    try:
+        from db import SessionLocal
+        from models import SavedSearch
+        
+        db = SessionLocal()
+        count = db.query(SavedSearch).count()
+        db.close()
+        
+        return {
+            "success": True,
+            "total_saved_searches": count,
+            "message": "Database query successful"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Database query failed"
+        }
+
 @app.post("/search", response_model=List[str])
 def search_endpoint(body: InputItem):
     try:
