@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status, Request
 from functools import lru_cache
 
 PROJECT_URL = os.environ.get("SUPABASE_PROJECT_URL") or os.environ.get("SUPABASE_URL")
-JWKS_URL = os.environ.get("SUPABASE_JWKS_URL") or f"{PROJECT_URL}/rest/v1/rpc/jwks" if PROJECT_URL else None
+JWKS_URL = os.environ.get("SUPABASE_JWKS_URL") or f"{PROJECT_URL}/auth/v1/jwks" if PROJECT_URL else None
 AUDIENCE = "authenticated" 
 ISSUER = f"{PROJECT_URL}/auth/v1" 
 
