@@ -23,15 +23,7 @@ app = FastAPI(title="Job Search API", description="API for job searching with au
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173", 
-        "http://localhost:3000", 
-        "https://cheerful-daifuku-2f42d9.netlify.app",
-        "https://*.netlify.app",
-        "https://*.vercel.app",
-        "https://*.railway.app",
-        "*"
-    ],
+    allow_origins=["*"],  # Allow all origins for debugging
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

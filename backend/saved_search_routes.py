@@ -24,10 +24,13 @@ async def get_saved_searches(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-
-    saved_searches = db.query(SavedSearch).filter(
-        SavedSearch.user_id == current_user["id"]
-    ).order_by(SavedSearch.created_at.desc()).all()
+    try:
+        saved_searches = db.query(SavedSearch).filter(
+            SavedSearch.user_id == current_user["id"]
+        ).order_by(SavedSearch.created_at.desc()).all()
+    except Exception as e:
+        print(f"Database error in get_saved_searches: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     
     result = []
     for search in saved_searches:
